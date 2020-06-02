@@ -95,9 +95,9 @@
         if (pause) {
             ctx.textAlign = 'center';
             if (gameover) {
-                ctx.fillText('GAME OVER', 150, 75);
+                ctx.fillText('GAME OVER', 180, 120);
             } else {
-                ctx.fillText('PAUSE', 150, 75);
+                ctx.fillText('PAUSE', 180, 120);
             }
             ctx.textAlign = 'left';
         }
