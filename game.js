@@ -1,16 +1,19 @@
-var canvas = null,
-    ctx = null,
-    lastPress = null,
-    dir = 0,
-    player = null,
-    pause = true,
-    score = 0,
-    food = null;
 const KEY_ENTER = 13,
     KEY_LEFT = 37,
     KEY_UP = 38,
     KEY_RIGHT = 39,
     KEY_DOWN = 40;
+var canvas = null,
+    ctx = null,
+    lastPress = null,
+    player = null,
+    food = null,
+    pause = true,
+    gameover = true,
+    score = 0,
+    dir = 0,
+    wall = new Array();
+
 document.addEventListener('keydown', function(e) {
     lastPress = e.which;
 }, false);
@@ -43,13 +46,30 @@ function random(max) {
     return Math.floor(Math.random() * max);
 }
 
+function reset() {
+    score = 0;
+    dir = 1;
+    player.x = 40;
+    player.y = 40;
+    food.x = random(canvas.width / 10 - 1) * 10;
+    food.y = random(canvas.height / 10 - 1) * 10;
+    gameover = false;
+}
+
 function paint(ctx) {
+    var i = 0,
+        l = 0;
     // Clean canvas
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // Draw player
     ctx.fillStyle = '#0f0';
     player.fill(ctx);
+    // Draw walls
+    ctx.fillStyle = '#999';
+    for (i = 0, l = wall.length; i < l; i += 1) {
+        wall[i].fill(ctx);
+    }
     // Draw food
     ctx.fillStyle = '#f00';
     food.fill(ctx);
@@ -61,13 +81,23 @@ function paint(ctx) {
     // Draw pause
     if (pause) {
         ctx.textAlign = 'center';
-        ctx.fillText('PAUSE', 150, 75);
+        if (gameover) {
+            ctx.fillText('GAME OVER', 150, 75);
+        } else {
+            ctx.fillText('PAUSE', 150, 75);
+        }
         ctx.textAlign = 'left';
     }
 }
 
 function act() {
+    var i,
+        l;
     if (!pause) {
+        // GameOver Reset
+        if (gameover) {
+            reset();
+        }
         // Change Direction
         if (lastPress == KEY_UP) {
             dir = 0;
@@ -81,7 +111,7 @@ function act() {
         if (lastPress == KEY_LEFT) {
             dir = 3;
         }
-        // Moveremos nuestro rectángulo dependiendo la dirección
+        // Move Rect
         if (dir == 0) {
             player.y -= 10;
         }
@@ -113,6 +143,17 @@ function act() {
             food.x = random(canvas.width / 10 - 1) * 10;
             food.y = random(canvas.height / 10 - 1) * 10;
         }
+        // Wall Intersects
+        for (i = 0, l = wall.length; i < l; i += 1) {
+            if (food.intersects(wall[i])) {
+                food.x = random(canvas.width / 10 - 1) * 10;
+                food.y = random(canvas.height / 10 - 1) * 10;
+            }
+            if (player.intersects(wall[i])) {
+                gameover = true;
+                pause = true;
+            }
+        }
     }
     // Pause/Unpause
     if (lastPress == KEY_ENTER) {
@@ -138,6 +179,11 @@ function init() {
     // Create player and food
     player = new Rectangle(40, 40, 10, 10);
     food = new Rectangle(80, 80, 10, 10);
+    // Create walls
+    wall.push(new Rectangle(100, 50, 10, 10));
+    wall.push(new Rectangle(100, 100, 10, 10));
+    wall.push(new Rectangle(200, 50, 10, 10));
+    wall.push(new Rectangle(200, 100, 10, 10));
     // Start game
     run();
     repaint();
