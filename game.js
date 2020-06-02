@@ -8,7 +8,7 @@
     var canvas = null,
         ctx = null,
         lastPress = null,
-        //player = null,
+
         pause = true,
         gameover = true,
         dir = 0,
@@ -57,6 +57,7 @@
         score = 0;
         dir = 1;
         body.length = 0;
+        wall.length = 0;
         body.push(new Rectangle(40, 40, 10, 10));
         body.push(new Rectangle(0, 0, 10, 10));
         body.push(new Rectangle(0, 0, 10, 10));
@@ -71,24 +72,22 @@
         // Clean canvas
         ctx.fillStyle = '#2c93a3';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Draw player
-        //ctx.fillStyle = '#0f0';
+        // Draw walls
+        ctx.fillStyle = '#8a5f1f';
+        for (i = 0, l = wall.length; i < l; i += 1) {
+
+            wall[i].fill(ctx);
+        }
         for (i = 0, l = body.length; i < l; i += 1) {
             //body[i].fill(ctx);
             ctx.drawImage(iBody, body[i].x, body[i].y);
         }
-        // Draw walls
-        ctx.fillStyle = '#8a5f1f';
-        for (i = 0, l = wall.length; i < l; i += 1) {
-            wall[i].fill(ctx);
-        }
         // Draw food
-        //ctx.fillStyle = '#f00';
-        //food.fill(ctx);
         ctx.drawImage(iFood, food.x, food.y);
+
         // Debug last key pressed
         ctx.fillStyle = '#fff';
-        //ctx.fillText('Last Press: ' + lastPress, 0, 20);
+
         // Draw score
         ctx.fillText('Score: ' + score, 0, 10);
         // Draw pause
@@ -164,6 +163,7 @@
                 }
 
                 if (body[0].intersects(wall[i])) {
+                    aDie.play();
                     gameover = true;
                     pause = true;
                 }
@@ -180,6 +180,9 @@
             if (body[0].intersects(food)) {
                 body.push(new Rectangle(food.x, food.y, 10, 10));
                 score += 1;
+                //create wall
+
+                wall.push(new Rectangle(food.x, food.y, 10, 10))
                 food.x = random(canvas.width / 10 - 1) * 10;
                 food.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
@@ -216,11 +219,7 @@
         aDie.src = 'assets/dies.mp3';
         // Create food
         food = new Rectangle(80, 80, 10, 10);
-        // Create walls
-        wall.push(new Rectangle(100, 50, 10, 10));
-        wall.push(new Rectangle(100, 100, 10, 10));
-        wall.push(new Rectangle(200, 50, 10, 10));
-        wall.push(new Rectangle(200, 100, 10, 10));
+
         // Start game
         run();
         repaint();
